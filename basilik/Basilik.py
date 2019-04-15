@@ -1,11 +1,15 @@
 import pandas as pd
 
 class Node(object):
+    """
+    each node object represents a discrete random variable.
     
-    def __init__(self, name, ls_parents):
+    each node knows its parent(s) but does not know its children.
+    """
+    
+    def __init__(self, name, ls_parents=[]):
         self.name = name
         self.ls_parents = ls_parents
-        pass    
 
 class BN(object):
     
