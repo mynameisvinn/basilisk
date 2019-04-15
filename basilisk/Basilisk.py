@@ -1,3 +1,7 @@
+"""
+BN module constructs a bayesian network from Node objects.
+"""
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -5,6 +9,23 @@ from networkx.drawing.nx_agraph import write_dot, graphviz_layout
 from graphviz import dot
 
 class BN(object):
+    """Bayesian Network
+
+    parameters
+    ----------
+    ls_nodes : list of Node objects
+
+    observations: pandas dataframe
+        dataframe, where each column represents a discrete random variable.
+
+    attributes
+    ----------
+    dict_nodes : dictionary
+        key represents name of Node, value is a list of its parents
+
+    dict_adj : dictionary
+        key represents name of Node, value is a list of its children
+    """
     
     def __init__(self, ls_nodes, observations):
         self.ls_nodes = ls_nodes
@@ -13,12 +34,16 @@ class BN(object):
         self.dict_adj = self._generate_dict_adj()  # create dict of nodes for fast lookup
         
     def _generate_dict_nodes(self, ls_nodes):
+        """return a dictionary, where key is name of node and value is a
+        list of its parents."""
         d = {}
         for node in ls_nodes:
             d[node.name] = node
         return d
     
     def _generate_dict_adj(self):
+        """return a dictionary, where key is name of node and value is a
+        list of its children."""
         d = {}
         for parent in self.ls_nodes:
             children = []
@@ -32,14 +57,11 @@ class BN(object):
     def draw_graph(self, **kwargs):
         graph = nx.DiGraph(self.dict_adj)
         layout = graphviz_layout(graph, 'dot')
-        
         nx.draw_networkx(graph, layout = layout, **kwargs)
         plt.axis('off')
         plt.show()
         
     def generate_cpt(self, name):
-    	# TODO: handle CPT for marginal probabilities
-        
         # first, fetch node
         node = self.dict_nodes[name]
         

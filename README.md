@@ -1,4 +1,4 @@
-# basilik, for bayesian networks
+# basilisk
 define the graph and provide joint observations, and basilik will handle everything else.
 
 ## example
