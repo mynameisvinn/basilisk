@@ -1,4 +1,8 @@
 import pandas as pd
+import matplotlib.pyplot as plt
+import networkx as nx
+from networkx.drawing.nx_agraph import write_dot, graphviz_layout
+from graphviz import dot
 
 class Node(object):
     """
@@ -17,6 +21,7 @@ class BN(object):
         self.ls_nodes = ls_nodes
         self.observations = observations
         self.dict_nodes = self._generate_dict_nodes(ls_nodes)  # create dict of nodes for fast lookup
+        self.dict_adj = self._generate_dict_adj()  # create dict of nodes for fast lookup
         
     def _generate_dict_nodes(self, ls_nodes):
         d = {}
@@ -24,6 +29,25 @@ class BN(object):
             d[node.name] = node
         return d
     
+    def _generate_dict_adj(self):
+        d = {}
+        for parent in self.ls_nodes:
+            children = []
+            
+            for child in self.ls_nodes:
+                if parent in child.ls_parents:
+                    children.append(child.name)
+            d[parent.name] = children
+        return d
+    
+    def draw_graph(self, **kwargs):
+        graph = nx.DiGraph(self.dict_adj)
+        layout = graphviz_layout(graph, 'dot')
+        
+        nx.draw_networkx(graph, layout = layout, **kwargs)
+        plt.axis('off')
+        plt.show()
+        
     def generate_cpt(self, name):
     	# TODO: handle CPT for marginal probabilities
         
