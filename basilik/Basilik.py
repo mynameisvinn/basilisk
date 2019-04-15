@@ -4,17 +4,6 @@ import networkx as nx
 from networkx.drawing.nx_agraph import write_dot, graphviz_layout
 from graphviz import dot
 
-class Node(object):
-    """
-    each node object represents a discrete random variable.
-    
-    each node knows its parent(s) but does not know its children.
-    """
-    
-    def __init__(self, name, ls_parents=[]):
-        self.name = name
-        self.ls_parents = ls_parents
-
 class BN(object):
     
     def __init__(self, ls_nodes, observations):
@@ -62,4 +51,5 @@ class BN(object):
         cs = self.observations[node.name]
         
         # finally, crosstab
+        # # https://stackoverflow.com/questions/53510319/python-pandas-merging-with-more-than-one-level-overlap-on-a-multi-index-is-not
         return pd.crosstab(ps, cs, normalize = 'index').reset_index()
