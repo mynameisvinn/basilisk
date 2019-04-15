@@ -1,10 +1,8 @@
-# basilik
-basilik makes it easy to construct bayesian networks. 
-
-all you need to is define the graph (ie specifying edge relationships) and provide joint observations. basilik will handle the rest (eg constructing a bayesian network, computing conditional probabilities).
+# basilik for bayesian networks
+define the graph and provide joint observations, and basilik will handle everything else.
 
 ## example
-we'll use [murphy's classic sprinkler example](https://www.cs.ubc.ca/~murphyk/Bayes/bayes_tutorial.pdf).
+lets use [murphy's classic sprinkler example](https://www.cs.ubc.ca/~murphyk/Bayes/bayes_tutorial.pdf).
 
 first, define nodes and corresponding parents.
 ```
@@ -13,16 +11,16 @@ R = Node("rain", [C])
 S = Node("sprinkler", [C])
 W = Node("wet", [R, S])
 
-ls_n = [C, R, S, W]  # a list of nodes
+ls_nodes = [C, R, S, W]
 ```
 
 then, instantiate basilik with joint observations.
 ```
-joint_observations = pd.read_csv("observations.csv").drop("Unnamed: 0", axis=1)
-bayes_network = BN(ls_n, joint_observations)
+obs = pd.read_csv("observations.csv").drop("Unnamed: 0", axis=1)
+model = BN(ls_nodes, obs)
 ```
 
 we can easily inspect conditional probability tables for a given node.
 ```
-bayes_network.generate_cpt("wet")  # returns dataframe
+model.generate_cpt("wet")  # basilik automatically generates CPTs from observations
 ```
