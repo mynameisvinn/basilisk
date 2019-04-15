@@ -30,18 +30,18 @@ class BN(object):
     def __init__(self, ls_nodes, observations):
         self.ls_nodes = ls_nodes
         self.observations = observations
-        self.dict_nodes = self._generate_dict_nodes(ls_nodes)  # create dict of nodes for fast lookup
-        self.dict_adj = self._generate_dict_adj()  # create dict of nodes for fast lookup
+        self.dict_parents = self._generate_dict_parents()  # create dict of nodes for fast lookup
+        self.dict_children = self._generate_dict_children()
         
-    def _generate_dict_nodes(self, ls_nodes):
+    def _generate_dict_parents(self):
         """return a dictionary, where key is name of node and value is a
         list of its parents."""
         d = {}
-        for node in ls_nodes:
+        for node in self.ls_nodes:
             d[node.name] = node
         return d
     
-    def _generate_dict_adj(self):
+    def _generate_dict_children(self):
         """return a dictionary, where key is name of node and value is a
         list of its children."""
         d = {}
