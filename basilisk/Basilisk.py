@@ -21,21 +21,31 @@ class BN(object):
     attributes
     ----------
     dict_nodes : dictionary
-        key represents name of Node, value is a list of its parents
+        key represents name of Node, value is the corresponding node.
 
-    dict_adj : dictionary
-        key represents name of Node, value is a list of its children
+    dict_children : dictionary
+        key represents name of Node, value is a list of its children names.
     """
     
     def __init__(self, ls_nodes, observations):
-        self.ls_nodes = ls_nodes
+        self.ls_nodes = ls_nodes  
         self.observations = observations
-        self.dict_nodes = self._generate_dict_nodes()  # create dict of nodes for fast lookup
+        self.dict_nodes = self._generate_dict_nodes()  # create dict for fast lookup
         self.dict_children = self._generate_dict_children()
+        self._generate_cpt()  # compute cpt for each node - no lazy loading
+
+
+    def _generate_cpt(self):
+        """iterate through all nodes and compute their respective conditional 
+        probability tables.
+        """
+
+        for node in self.ls_nodes:
+            node.cpt = self._calculate_cpt(node)
         
     def _generate_dict_nodes(self):
-        """return a dictionary, where key is name of node and value is 
-        the corresponding node object."""
+        """return a dictionary, where key is name of node and value is the 
+        corresponding node object."""
         d = {}
         for node in self.ls_nodes:
             d[node.name] = node
@@ -61,11 +71,8 @@ class BN(object):
         plt.axis('off')
         plt.show()
         
-    def generate_cpt(self, name):
-        # first, fetch node object
-        node = self.dict_nodes[name]
-        
-        # then find its parents
+    def _calculate_cpt(self, node):
+        # find node's parents
         parent = node.ls_parents
         
         # subset its corresponding marginals
