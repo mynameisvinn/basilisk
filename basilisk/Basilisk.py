@@ -9,30 +9,33 @@ from networkx.drawing.nx_agraph import write_dot, graphviz_layout
 from graphviz import dot
 
 class BN(object):
-    """Bayesian Network
-
+    """
     parameters
     ----------
-    ls_nodes : list of Node objects
+    ls_nodes : list of nodes
 
     observations: pandas dataframe
         dataframe, where each column represents a discrete random variable.
 
+
     attributes
     ----------
     dict_nodes : dictionary
-        key represents name of Node, value is the corresponding node.
+        key represents node name, value is the corresponding node.
 
     dict_children : dictionary
-        key represents name of Node, value is a list of its children names.
+        key represents node name, value is a list of its children names.
     """
     
-    def __init__(self, ls_nodes, observations):
+    def __init__(self, ls_nodes):
         self.ls_nodes = ls_nodes  
-        self.observations = observations
-        self.dict_nodes = self._generate_dict_nodes()  # create dict for fast lookup
+        self.dict_nodes = self._generate_dict_nodes()  # dict for fast lookup
         self.dict_children = self._generate_dict_children()
-        self._generate_cpt()  # compute cpt for each node - no lazy loading
+        
+
+    def fit(self, observations):
+        self.observations = observations
+        self._generate_cpt()  # compute cpt for each node - no lazy loading 
 
 
     def _generate_cpt(self):
@@ -44,7 +47,7 @@ class BN(object):
             node.cpt = self._calculate_cpt(node)
         
     def _generate_dict_nodes(self):
-        """return a dictionary, where key is name of node and value is the 
+        """return a dictionary, where key is node name and value is the 
         corresponding node object."""
         d = {}
         for node in self.ls_nodes:
