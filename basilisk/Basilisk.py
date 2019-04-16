@@ -30,12 +30,12 @@ class BN(object):
     def __init__(self, ls_nodes, observations):
         self.ls_nodes = ls_nodes
         self.observations = observations
-        self.dict_parents = self._generate_dict_parents()  # create dict of nodes for fast lookup
+        self.dict_nodes = self._generate_dict_nodes()  # create dict of nodes for fast lookup
         self.dict_children = self._generate_dict_children()
         
-    def _generate_dict_parents(self):
-        """return a dictionary, where key is name of node and value is a
-        list of its parents."""
+    def _generate_dict_nodes(self):
+        """return a dictionary, where key is name of node and value is 
+        the corresponding node object."""
         d = {}
         for node in self.ls_nodes:
             d[node.name] = node
@@ -55,14 +55,14 @@ class BN(object):
         return d
     
     def draw_graph(self, **kwargs):
-        graph = nx.DiGraph(self.dict_adj)
+        graph = nx.DiGraph(self.dict_children)
         layout = graphviz_layout(graph, 'dot')
         nx.draw_networkx(graph, layout = layout, **kwargs)
         plt.axis('off')
         plt.show()
         
     def generate_cpt(self, name):
-        # first, fetch node
+        # first, fetch node object
         node = self.dict_nodes[name]
         
         # then find its parents
