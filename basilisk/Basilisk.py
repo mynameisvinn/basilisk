@@ -1,5 +1,5 @@
 """
-BN module constructs a bayesian network from Node objects.
+BN constructs a bayesian network from Nodes.
 """
 
 import pandas as pd
@@ -67,7 +67,7 @@ class BN(object):
             d[parent.name] = children
         return d
     
-    def draw_graph(self, **kwargs):
+    def show(self, **kwargs):
         graph = nx.DiGraph(self.dict_children)
         layout = graphviz_layout(graph, 'dot')
         nx.draw_networkx(graph, layout = layout, **kwargs)
@@ -75,7 +75,10 @@ class BN(object):
         plt.show()
         
     def _calculate_cpt(self, node):
-        # find node's parents
+        """compute conditional probability table for the specified node.
+        """
+
+        # find its parents
         parent = node.ls_parents
         
         # subset its corresponding marginals

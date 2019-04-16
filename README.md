@@ -28,5 +28,6 @@ we can inspect conditional probability tables.
 W.cpt  # basilik automatically computes conditional probabilities
 ```
 
-## to-do
-* create sample method: something like model.sample("rain") will return joint observations for rain and its parents. first, each node will need to know its parents, direct and indirect.
+## TODO
+* create sample method: something like model.sample("rain") will return joint observations for rain and its parents. first, each node will need to know its parents, direct and indirect (do this through BFS).
+* assert observations correspond to nodes in graph
