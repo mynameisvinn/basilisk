@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 from networkx.drawing.nx_agraph import write_dot, graphviz_layout
 from graphviz import dot
+from collections import deque
 
 class BN(object):
     """
@@ -88,3 +89,36 @@ class BN(object):
         # finally, crosstab
         # # https://stackoverflow.com/questions/53510319/python-pandas-merging-with-more-than-one-level-overlap-on-a-multi-index-is-not
         return pd.crosstab(ps, cs, normalize = 'index').reset_index()
+
+    def sample(self, node):
+        """given a node, return its topological graph, which refers to the 
+        precise sequence of parent nodes to be executed.
+        """
+        lifo = deque([node])
+        fifo = deque([node])
+
+        while len(fifo) > 0:
+            
+            # grab node from fifo for examination
+            curr = fifo.pop()
+            print('evaluating', curr.name)
+
+            # fetch its parents
+            ls_parents = curr.get_parents()
+
+            # add unvisited parents to both lifo and fifo
+            for p in ls_parents:
+
+                # if parent has already been visited, ignore
+                if p in lifo:
+                    pass
+                
+                # otherwise, add parent to queue
+                else:
+                    lifo.append(p)
+                    fifo.appendleft(p)
+
+            print("fifo: ", list(map(lambda p: p.name, fifo)))
+            print("lifo", list(map(lambda p: p.name, lifo)))
+            print("-"*40)
+        return lifo
