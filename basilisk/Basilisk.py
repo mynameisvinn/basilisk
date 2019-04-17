@@ -90,35 +90,41 @@ class BN(object):
         # # https://stackoverflow.com/questions/53510319/python-pandas-merging-with-more-than-one-level-overlap-on-a-multi-index-is-not
         return pd.crosstab(ps, cs, normalize = 'index').reset_index()
 
-    def sample(self, node):
+    def topological_sort(self, node):
         """given a node, return its topological graph, which refers to the 
-        precise sequence of parent nodes to be executed.
+        precise sequence of parent nodes to be executed. this allows proper
+        execution of nodes.
+
+        for example, if A->B->C is the causal model, then model.sample(C)
+        returns [A, B, C].
         """
-        lifo = deque([node])
-        fifo = deque([node])
+        lifo = deque([node])  # final list for topological sort
+        fifo = deque([node])  # temporary list, for breadth first search.
 
         while len(fifo) > 0:
             
-            # grab node from fifo for examination
+            # grab a node from fifo for examination
             curr = fifo.pop()
-            print('evaluating', curr.name)
+            # print('evaluating', curr.name)
 
             # fetch its parents
             ls_parents = curr.get_parents()
 
-            # add unvisited parents to both lifo and fifo
+            # evaluate each parent
             for p in ls_parents:
 
-                # if parent has already been visited, ignore
+                # ignore if parent has already been added to topological graph
                 if p in lifo:
                     pass
                 
-                # otherwise, add parent to queue
+                # otherwise, add parent to topological graph
                 else:
                     lifo.append(p)
                     fifo.appendleft(p)
 
-            print("fifo: ", list(map(lambda p: p.name, fifo)))
-            print("lifo", list(map(lambda p: p.name, lifo)))
-            print("-"*40)
+            # print("fifo: ", list(map(lambda p: p.name, fifo)))
+            # print("lifo", list(map(lambda p: p.name, lifo)))
+            # print("-"*40)
+
+        lifo.reverse()  # reverse mutates list in place
         return lifo
