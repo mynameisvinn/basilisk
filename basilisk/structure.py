@@ -3,18 +3,7 @@ import copy
 import numpy as np
 import pandas as pd
 from scipy import stats
-
-import matplotlib.pyplot as plt
-import networkx as nx
-from networkx.drawing.nx_agraph import write_dot, graphviz_layout
-from graphviz import dot
-
-def graph(dict_children, **kwargs):
-    graph = nx.DiGraph(dict_children)
-    layout = graphviz_layout(graph, 'dot')
-    nx.draw_networkx(graph, layout = layout, **kwargs)
-    plt.axis('off')
-    plt.show()
+from .Node import Node
 
 def calc_mi(depdata, depbins):
     """
@@ -216,4 +205,15 @@ def pc_basic(data):
                                 dgraph[z].append(x)
                             if y not in dgraph[z]:
                                 dgraph[z].append(y)
-    return dgraph
+                                
+    nodelist = [Node(x) for x in dgraph.keys()]
+    
+    for child in nodelist:
+        parents = []
+
+        for parent in nodelist:
+            if child.name in dgraph.get(parent.name):
+                parents.append(parent )
+        child.ls_parents = parents
+        
+    return nodelist
