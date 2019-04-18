@@ -88,7 +88,12 @@ class BN(object):
         
         # finally, crosstab
         # # https://stackoverflow.com/questions/53510319/python-pandas-merging-with-more-than-one-level-overlap-on-a-multi-index-is-not
-        return pd.crosstab(ps, cs, normalize = 'index').reset_index()
+        cpt = pd.crosstab(ps, cs, normalize = 'index').reset_index()
+        
+        # if node is a marginal, it wont have parents, so drop unnecessary columns
+        if node.is_marginal:
+            cpt.drop("index", axis=1, inplace=True)
+        return cpt
 
     def scheduler(self, node):
         """given a node, return its topological graph, which refers to the 
@@ -108,9 +113,9 @@ class BN(object):
             # print('evaluating', curr.name)
 
             # fetch its parents
-            ls_parents = curr.get_parents()
+            ls_parents = curr.parents_nodes
 
-            # evaluate each parent
+            # evaluate each parent node
             for p in ls_parents:
 
                 # ignore if parent has already been added to topological graph
@@ -128,3 +133,41 @@ class BN(object):
 
         lifo.reverse()  # reverse mutates list in place
         return lifo
+    
+    def execute(self, node):
+        # track samples, where list of strings, each str is condition
+        temp_dict = {}
+        
+        # fetch order of operations from scheduler
+        execution_order = self.scheduler(node)  # list of nodes to be executed
+        readable_execution_order = list(map(lambda x: x.name, execution_order))
+        print("order of execution: ", readable_execution_order)
+        
+        # then sample each node according to order of operations... for each node in order
+        for curr in execution_order:
+            
+            # if n is marginal, no need to look up dictionary
+            if curr.is_marginal:
+                res = self._sample(curr)
+            
+            # otherwise, we need to construct a query for its parents' states
+            else:
+                parent_names = curr.parents_names
+                parent_states = []
+                for p in parent_names:
+                    parent_states.append(temp_dict[p])
+                res = self._sample(curr, parent_states)
+                
+            # finally, update temp_dict
+            temp_dict[curr.name] = res
+                
+        print(temp_dict)
+    
+    def _sample(self, node, parent_states=None):
+        """a wrapper function around Node's sample() method, which returns a 
+        string combining the node's name and its state.
+
+        for example, calling _sample("cloud") returns "cloud==True".
+        """        
+        res = node.sample(parent_states)[0]
+        return node.name + "==" + str(res)
