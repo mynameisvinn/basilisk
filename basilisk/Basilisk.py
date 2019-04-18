@@ -90,7 +90,7 @@ class BN(object):
         # # https://stackoverflow.com/questions/53510319/python-pandas-merging-with-more-than-one-level-overlap-on-a-multi-index-is-not
         return pd.crosstab(ps, cs, normalize = 'index').reset_index()
 
-    def topological_sort(self, node):
+    def scheduler(self, node):
         """given a node, return its topological graph, which refers to the 
         precise sequence of parent nodes to be executed. this allows proper
         execution of nodes.

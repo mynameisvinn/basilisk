@@ -16,7 +16,7 @@ class Test_Basilisk(unittest.TestCase):
         ls_nodes = [B, A, C, T, R, self.W, S]
         self.model = BN(ls_nodes)
 
-    def test_topological(self):
+    def test_scheduler(self):
         """a topological sort returns a list of nodes, which represents the 
         order of execution.
         """
@@ -24,7 +24,7 @@ class Test_Basilisk(unittest.TestCase):
         correct_sequence = ['B', 'A', 'T', 'C', 'S', 'R', 'W']
         
         # returns a list of nodes
-        computed_sequence = self.model.topological_sort(self.W)  
+        computed_sequence = self.model.scheduler(self.W)  
         
         # convert to list of node names
         computed_sequence = list(map(lambda x: x.name, computed_sequence))  
