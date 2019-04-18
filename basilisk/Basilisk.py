@@ -135,33 +135,41 @@ class BN(object):
         return lifo
     
     def execute(self, node):
-        # track samples, where list of strings, each str is condition
+        """
+        first, execute() fetchs an ordered list of operations from the 
+        scheduler. then, execute() samples from each node and records each 
+        result. finally, it returns a dictionary of results, where each key 
+        represents node name and each value represents its state.
+        """
+        
+        # track results of each sample - to be used for querying cpt
         temp_dict = {}
         
-        # fetch order of operations from scheduler
-        execution_order = self.scheduler(node)  # list of nodes to be executed
-        readable_execution_order = list(map(lambda x: x.name, execution_order))
-        print("order of execution: ", readable_execution_order)
+        # ask scheduler for order of operations
+        execution_order = self.scheduler(node)
         
-        # then sample each node according to order of operations... for each node in order
+        # sample each node
         for curr in execution_order:
             
-            # if n is marginal, no need to look up dictionary
+            # if node is marginal, we dont need parents' states
             if curr.is_marginal:
                 res = self._sample(curr)
             
-            # otherwise, we need to construct a query for its parents' states
+            # otherwise, we query its cpt using its parents' states
             else:
-                parent_names = curr.parents_names
-                parent_states = []
-                for p in parent_names:
+                parent_states = []  # query
+                for p in curr.parents_names:
                     parent_states.append(temp_dict[p])
                 res = self._sample(curr, parent_states)
                 
-            # finally, update temp_dict
+            # finally, update temp_dict with results
             temp_dict[curr.name] = res
                 
-        print(temp_dict)
+        # clean up strings before returning
+        for k in temp_dict.keys():
+            temp_dict[k] = temp_dict[k].split("==")[1]
+
+        return temp_dict
     
     def _sample(self, node, parent_states=None):
         """a wrapper function around Node's sample() method, which returns a 
