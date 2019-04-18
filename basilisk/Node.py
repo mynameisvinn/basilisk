@@ -43,7 +43,7 @@ class Node(object):
         if not self.is_marginal and parent_states is None:
             raise ValueError("node needs its parent's states.")
 
-        temp_cpt = self.cpt.copy()  # dataframes are mutable so create a temp df
+        temp_cpt = self.cpt.copy(deep=True)  # df are mutable so create deep copy
         
         # if node is not a marginal, filter its cpt by parents' state 
         if not self.is_marginal:
@@ -52,9 +52,9 @@ class Node(object):
             for parent_state in parent_states:
                 temp_cpt = temp_cpt.query(parent_state)
 
-            # then drop unnecssary columns, which correspond to parents' columns
+            # then drop unnecssary columns, which correspond to parents' cols
             for column in self.parents_names:
-                temp_cpt.drop(column, axis=1, inplace=True)
+                temp_cpt = temp_cpt.drop(column, axis=1)  # https://stackoverflow.com/questions/32752299/pandas-warning-while-trying-to-delete-column
             
         # finally, draw from probability distribution
         states = np.array(temp_cpt.columns)  # possible states
