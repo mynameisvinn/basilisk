@@ -4,9 +4,6 @@ BN constructs a bayesian network from Nodes.
 
 import pandas as pd
 import matplotlib.pyplot as plt
-import networkx as nx
-from networkx.drawing.nx_agraph import write_dot, graphviz_layout
-from graphviz import dot
 from collections import deque
 
 class BN(object):
@@ -69,6 +66,10 @@ class BN(object):
         return d
     
     def show(self, **kwargs):
+        import networkx as nx
+        from networkx.drawing.nx_agraph import write_dot, graphviz_layout
+        from graphviz import dot
+        
         graph = nx.DiGraph(self.dict_children)
         layout = graphviz_layout(graph, 'dot')
         nx.draw_networkx(graph, layout = layout, **kwargs)
@@ -134,7 +135,7 @@ class BN(object):
         lifo.reverse()  # reverse mutates list in place
         return lifo
     
-    def execute(self, node):
+    def _execute(self, node):
         """
         first, execute() fetchs an ordered list of operations from the 
         scheduler. then, execute() samples from each node and records each 
@@ -179,3 +180,23 @@ class BN(object):
         """        
         res = node.sample(parent_states)[0]
         return node.name + "==" + str(res)
+    
+    def generate_samples(self, node, n_samples=1):
+        """generate a new batch of joint observations.
+        """
+
+        # initialize counter with the approprate parent nodes
+        df = {}
+
+        # ask scheduler for list of nodes that will be sampled
+        random_vars = list(map(lambda x: x.name, self.scheduler(node)))
+        for var in random_vars:
+            df[var] = []
+
+        # sample from models and update counter 
+        for _ in range(n_samples):
+            sample = self._execute(node)
+            for (var, state) in sample.items():
+                df[var].append(state)
+
+        return pd.DataFrame(df)

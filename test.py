@@ -48,11 +48,12 @@ class Test_Basilisk(unittest.TestCase):
         obs = pd.read_csv("data/observations.csv").drop("Unnamed: 0", axis=1)
         model.fit(obs)  
 
-        k = 1000
-        
-        samples = R.sample(parent_states=["cloudy==True"], num_samples=k)
-        count = [r is True for r in samples]
-        self.assertAlmostEqual(np.sum(count)/k, .78, places=1)
+        leaf_node = R  # arbitrarily selected node
+        samples = model.generate_samples(leaf_node, n_samples=1000)
+
+        # construct conditional probablity table from joint observations
+        joint_obs = pd.crosstab(samples["cloudy"], samples["rain"], normalize = 'index').reset_index()
+        self.assertTrue(np.allclose(np.array(joint_obs['False']), np.array(leaf_node.cpt[False]), atol=.05))
 
 if __name__ == "__main__":
     unittest.main()
