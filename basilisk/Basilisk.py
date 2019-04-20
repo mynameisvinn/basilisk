@@ -175,7 +175,7 @@ class BN(object):
         """a wrapper function around Node's sample() method, which returns a 
         string combining the node's name and its state.
 
-        for example, calling _sample("cloud") returns "cloud==True".
+        for example, calling _sample("cloud") returns "cloudy==True".
         """        
         res = node.sample(parent_states)[0]
         return node.name + "==" + str(res)
