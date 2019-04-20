@@ -53,7 +53,9 @@ class Test_Basilisk(unittest.TestCase):
 
         # construct conditional probablity table from joint observations
         joint_obs = pd.crosstab(samples["cloudy"], samples["rain"], normalize = 'index').reset_index()
-        self.assertTrue(np.allclose(np.array(joint_obs['False']), np.array(leaf_node.cpt[False]), atol=.05))
+        a = np.array(joint_obs['False'])
+        b = np.array(leaf_node.cpt[False])
+        self.assertTrue(np.allclose(a, b, atol=.05))  # atol = absolute difference
 
 if __name__ == "__main__":
     unittest.main()
