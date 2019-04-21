@@ -5,6 +5,7 @@ BN constructs a bayesian network from Nodes.
 import pandas as pd
 import matplotlib.pyplot as plt
 from collections import deque
+from tqdm import tqdm
 
 class BN(object):
     """
@@ -194,9 +195,9 @@ class BN(object):
             df[var] = []
 
         # sample from models and update counter 
-        for _ in range(n_samples):
+        for _ in tqdm(range(n_samples)):
             sample = self._execute(node)
             for (var, state) in sample.items():
                 df[var].append(state)
-
+                
         return pd.DataFrame(df)
