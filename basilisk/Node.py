@@ -29,6 +29,11 @@ class Node(object):
             if parent not in probs.keys():
                 raise ValueError("must specify cpt for all parents.")
         
+        # assert new cpt does not contain non-parent nodes
+        for parent in probs.keys():
+            if (parent not in node.parents_names) and (parent is not "True"):
+                raise ValueError("new cpt contains a non-parent node.")
+
         # impute probability of false since this is a binary random variable
         prob_false = [1 - x for x in probs['True']]
         probs["False"] = prob_false
