@@ -183,10 +183,13 @@ class BN(object):
         return node.name + "==" + str(res)
     
     def generate_samples(self, node, n_samples=1):
-        """generate a new batch of joint observations.
+        """generate a batch of joint observations.
+        
+        generate_samples() will generate samples for the specified node and
+        its corresponding ancestors. 
         """
 
-        # initialize counter with the approprate parent nodes
+        # track sample's states with a dictionary
         df = {}
 
         # ask scheduler for list of nodes that will be sampled
@@ -194,10 +197,16 @@ class BN(object):
         for var in random_vars:
             df[var] = []
 
-        # sample from models and update counter 
+        # sample from nodes and accordingly update counter
         for _ in tqdm(range(n_samples)):
             sample = self._execute(node)
             for (var, state) in sample.items():
                 df[var].append(state)
-                
-        return pd.DataFrame(df)
+        
+        # convert dictionary into a pandas dataframe
+        df = pd.DataFrame(df)
+        
+        # recast each row value from str ("True") to boolean (True)
+        for col in df.columns:
+            df[col] = df[col] == "True"
+        return df
