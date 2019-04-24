@@ -137,23 +137,26 @@ class BN(object):
         return lifo
     
     def _execute(self, node):
-        """
-        first, execute() fetchs an ordered list of operations from the 
-        scheduler. then, execute() samples from each node and records each 
-        result. finally, it returns a dictionary of results, where each key 
-        represents node name and each value represents its state.
+        """sample from a node and its ancestors.
+
+        first, _execute() fetchs an ordered list of operations from the 
+        scheduler. then, _execute() samples from each node and records results. 
+        finally, it returns a dict of results, where each k = node name and v = 
+        state.
+
+        _execute() is important when order of execution matters.
         """
         
-        # track results of each sample - to be used for querying cpt
+        # track state of each random variable (to be used for querying cpt)
         temp_dict = {}
         
-        # ask scheduler for order of operations
+        # ask scheduler for order of operations (nodes sampled in order)
         execution_order = self.scheduler(node)
         
-        # sample each node
+        # sample each node according to order
         for curr in execution_order:
             
-            # if node is marginal, we dont need parents' states
+            # if node is a marginal, we dont need parents' states
             if curr.is_marginal:
                 res = self._sample(curr)
             
@@ -162,6 +165,8 @@ class BN(object):
                 parent_states = []  # query
                 for p in curr.parents_names:
                     parent_states.append(temp_dict[p])
+
+                # sample node (conditioned on its parents' states)
                 res = self._sample(curr, parent_states)
                 
             # finally, update temp_dict with results
@@ -174,8 +179,10 @@ class BN(object):
         return temp_dict
     
     def _sample(self, node, parent_states=None):
-        """a wrapper function around Node's sample() method, which returns a 
-        string combining the node's name and its state.
+        """a wrapper function around Node's sample() method
+
+        _sample() calls a Node's sample() method, and subsequently wraps the
+        result (the state of the random variable) with the Node's name. 
 
         for example, calling _sample("cloud") returns "cloudy==True".
         """        
@@ -185,11 +192,15 @@ class BN(object):
     def generate_samples(self, node, n_samples=1):
         """generate a batch of joint observations.
         
-        generate_samples() will generate samples for the specified node and
-        its corresponding ancestors. 
+        generate_samples() generates samples for the specified node and its 
+        corresponding ancestors. 
+
+        for each trial, it calls _execute(), which returns a dict, where k = 
+        node name and v = state of random variable. these results are tallied
+        in a single dataframe and returned to the user.
         """
 
-        # track sample's states with a dictionary
+        # track sample's states with a dictionary across all trials
         df = {}
 
         # ask scheduler for list of nodes that will be sampled
@@ -197,13 +208,13 @@ class BN(object):
         for var in random_vars:
             df[var] = []
 
-        # sample from nodes and accordingly update counter
+        # sample from nodes and accordingly update tracker
         for _ in tqdm(range(n_samples)):
             sample = self._execute(node)
             for (var, state) in sample.items():
                 df[var].append(state)
         
-        # convert dictionary into a pandas dataframe
+        # convert dictionary into a dataframe
         df = pd.DataFrame(df)
         
         # recast each row value from str ("True") to boolean (True)
